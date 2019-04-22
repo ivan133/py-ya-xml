@@ -95,13 +95,16 @@ class YaSearch:
     Call to search API. Check https://tech.yandex.ru/xml/doc/dg/concepts/response_request-docpage/ to see possible
     values.    
     """
-    def search(self, query, page=1, site=None, max_page_num=100, sort_by='rlv', order='descending'):
+    def search(self, query, page=1, region=None, site=None, max_page_num=100, sort_by='rlv', order='descending'):
         request_suffix = u''
         if site:
             request_suffix += (u' site:%s' % site)
 
         page -= 1
         params = {'user': self._api_user, 'key': self._api_key}
+        if region:
+            params["lr"] = int(region)
+
         query = query + request_suffix
 
         if PY2:
