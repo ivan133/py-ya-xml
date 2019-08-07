@@ -25,15 +25,15 @@ class SearchError:
 class YaSearch:
     RESULTS_PER_PAGE = 10
 
+    # < maxpassages > 5 < / maxpassages >
     REQUEST_TEMPLATE = """<?xml version='1.0' encoding='utf-8'?>
         <request>
             <query>%s</query>
             <page>%s</page>
             <sortby order="%s" priority="no">%s</sortby>
-            <maxpassages>0</maxpassages>
             <groupings>
-		        <groupby mode="flat"/>
-	        </groupings>
+                <groupby attr="d" mode="deep" groups-on-page="%s"  docs-in-group="1" />
+            </groupings>
         </request>"""
 
     BASE_URL = u'https://yandex.{}/search/xml?'
@@ -95,7 +95,7 @@ class YaSearch:
     Call to search API. Check https://tech.yandex.ru/xml/doc/dg/concepts/response_request-docpage/ to see possible
     values.    
     """
-    def search(self, query, page=1, region=None, site=None, max_page_num=100, sort_by='rlv', order='descending'):
+    def search(self, query, page=1, region=None, site=None, max_page_num=100, sort_by='rlv', order='descending', per_page=10):
         request_suffix = u''
         if site:
             request_suffix += (u' site:%s' % site)
@@ -109,10 +109,10 @@ class YaSearch:
 
         if PY2:
             search_url = self._url.encode('utf-8') + urllib.parse.urlencode(params)
-            post_data = self.REQUEST_TEMPLATE % (query.encode('utf-8'), str(page), order.encode('utf-8'), sort_by.encode('utf-8'))
+            post_data = self.REQUEST_TEMPLATE % (query.encode('utf-8'), str(page), order.encode('utf-8'), sort_by.encode('utf-8'), str(per_page))
         else:
             search_url = self._url + urllib.parse.urlencode(params)
-            post_data = (self.REQUEST_TEMPLATE % (query, str(page), order, sort_by)).encode('utf-8')
+            post_data = (self.REQUEST_TEMPLATE % (query, str(page), order, sort_by, per_page)).encode('utf-8')
 
         req = urllib.request.Request(search_url, post_data)
         response = urllib.request.urlopen(req)
